@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: default-nginx-deployment
+  namespace: dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+        cluster: default
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.22
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hna-nginx-deployment
+  namespace: dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+        cluster: hna
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.22
+        ports:
+        - name: http
+          containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test1-deployment
+  namespace: dev
+  labels:
+    app: test1-deployment
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: test1
+  template:
+    metadata:
+      labels:
+        app: test1
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.22
+        ports:
+        - name: http
+          containerPort: 80

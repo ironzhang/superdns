@@ -1,0 +1,17 @@
+apiVersion: "superdns.io/v1"
+kind: Cluster
+metadata:
+  name: hna-v.example.app.com
+  namespace: superdns
+  labels:
+    domain: example.app.com
+spec:
+  domain: "example.app.com"
+  cluster: "hna"
+  endpoints:
+   - addr: "127.0.0.1:8000"
+     state: "enabled"
+     weight: 100
+   - addr: "127.0.0.1:8001"
+     state: "disabled"
+     weight: 50

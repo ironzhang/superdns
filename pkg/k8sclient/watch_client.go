@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/ironzhang/tlog"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/labels"
@@ -14,9 +13,25 @@ import (
 	"k8s.io/client-go/util/workqueue"
 )
 
+// Action event action
+type Action string
+
+const (
+	Add    Action = "Add"
+	Update Action = "Update"
+	Delete Action = "Delete"
+)
+
+// Event watch event
+type Event struct {
+	Action Action
+	Key    string
+	Object interface{}
+}
+
 // Watcher watcher interface
 type Watcher interface {
-	OnWatch(store cache.Store, key string) error
+	OnWatch(indexer cache.Indexer, event Event) error
 }
 
 // WatchClient k8s watch client
@@ -31,7 +46,7 @@ func NewWatchClient(rest rest.Interface) *WatchClient {
 
 // Watch watch k8s resource
 func (p *WatchClient) Watch(ctx context.Context, namespace, resource string, object runtime.Object,
-	lselector labels.Selector, fselector fields.Selector, watcher Watcher) {
+	lselector labels.Selector, fselector fields.Selector, indexers cache.Indexers, watcher Watcher) {
 	// new workqueue
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
 
@@ -43,7 +58,11 @@ func (p *WatchClient) Watch(ctx context.Context, namespace, resource string, obj
 				tlog.Errorw("get meta namespace key", "error", err)
 				return
 			}
-			queue.Add(key)
+			queue.Add(&Event{
+				Action: Add,
+				Key:    key,
+				Object: obj,
+			})
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			key, err := cache.MetaNamespaceKeyFunc(newObj)
@@ -51,7 +70,11 @@ func (p *WatchClient) Watch(ctx context.Context, namespace, resource string, obj
 				tlog.Errorw("get meta namespace key", "error", err)
 				return
 			}
-			queue.Add(key)
+			queue.Add(&Event{
+				Action: Update,
+				Key:    key,
+				Object: newObj,
+			})
 		},
 		DeleteFunc: func(obj interface{}) {
 			key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
@@ -59,7 +82,11 @@ func (p *WatchClient) Watch(ctx context.Context, namespace, resource string, obj
 				tlog.Errorw("get deletion handling meta namespace key", "error", err)
 				return
 			}
-			queue.Add(key)
+			queue.Add(&Event{
+				Action: Delete,
+				Key:    key,
+				Object: obj,
+			})
 		},
 	}
 
@@ -68,13 +95,13 @@ func (p *WatchClient) Watch(ctx context.Context, namespace, resource string, obj
 		options.LabelSelector = lselector.String()
 		options.FieldSelector = fselector.String()
 	})
-	store, controller := cache.NewInformer(lw, object, 0, h)
+	indexer, controller := cache.NewIndexerInformer(lw, object, 0, h, indexers)
 
 	// run worker
 	w := worker{
 		watcher:    watcher,
 		queue:      queue,
-		store:      store,
+		indexer:    indexer,
 		controller: controller,
 	}
 	go w.Run(ctx)

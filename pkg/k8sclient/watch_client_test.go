@@ -2,6 +2,7 @@ package k8sclient
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/ironzhang/tlog"
@@ -13,22 +14,25 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+func PrintObjects(objects []interface{}) {
+	tlog.Infof("---------- start ----------")
+	for _, obj := range objects {
+		pod := obj.(*v1.Pod)
+		tlog.Infof("pod %s %s", pod.GetName(), pod.Status.Phase)
+	}
+	tlog.Infof("---------- stop -----------")
+}
+
 type testPodWatcher struct {
 }
 
-func (p *testPodWatcher) OnWatch(store cache.Store, key string) error {
-	obj, exists, err := store.GetByKey(key)
+func (p *testPodWatcher) OnWatch(indexer cache.Indexer, event Event) error {
+	objects, err := indexer.Index("app_index", event.Object)
 	if err != nil {
-		tlog.Errorw("store get", "key", key, "error", err)
+		tlog.Errorw("index", "obj", event.Object, "error", err)
 		return err
 	}
-	if !exists {
-		tlog.Infow("pod does not exist", "key", key)
-		return nil
-	}
-
-	pod := obj.(*v1.Pod)
-	tlog.Infof("pod %s %s", pod.GetName(), pod.Status.Phase)
+	PrintObjects(objects)
 	return nil
 }
 
@@ -47,7 +51,18 @@ func TestWatchClient(t *testing.T) {
 		return
 	}
 
+	// build indexers
+	indexers := cache.Indexers{
+		"app_index": func(obj interface{}) ([]string, error) {
+			pod, ok := obj.(*v1.Pod)
+			if !ok {
+				return nil, errors.New("object is not a pod")
+			}
+			return []string{pod.ObjectMeta.Labels["app"]}, nil
+		},
+	}
+
 	wc := NewWatchClient(clientset.CoreV1().RESTClient())
-	wc.Watch(context.TODO(), "dev", "pods", &v1.Pod{}, labels.Everything(), fields.Everything(), &testPodWatcher{})
+	wc.Watch(context.TODO(), "dev", "pods", &v1.Pod{}, labels.Everything(), fields.Everything(), indexers, &testPodWatcher{})
 	<-context.TODO().Done()
 }

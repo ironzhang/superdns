@@ -15,39 +15,39 @@ import (
 type worker struct {
 	watcher    Watcher
 	queue      workqueue.RateLimitingInterface
-	store      cache.Store
+	indexer    cache.Indexer
 	controller cache.Controller
 }
 
-func (p *worker) HandleErr(err error, key interface{}) {
+func (p *worker) HandleErr(err error, item interface{}) {
 	if err == nil {
-		p.queue.Forget(key)
+		p.queue.Forget(item)
 		return
 	}
 
 	// retries 3 times if something goes wrong
-	retries := p.queue.NumRequeues(key)
+	retries := p.queue.NumRequeues(item)
 	if retries < 3 {
-		tlog.Infow("retrying", "key", key, "retries", retries, "error", err)
-		p.queue.AddRateLimited(key)
+		tlog.Infow("retrying", "item", item, "retries", retries, "error", err)
+		p.queue.AddRateLimited(item)
 		return
 	}
 
 	// stop retrying
-	p.queue.Forget(key)
+	p.queue.Forget(item)
 	runtime.HandleError(err)
-	tlog.Infow("dropping", "key", key, "error", err)
+	tlog.Infow("dropping", "item", item, "error", err)
 }
 
 func (p *worker) Process() bool {
-	key, quit := p.queue.Get()
+	item, quit := p.queue.Get()
 	if quit {
 		return false
 	}
-	defer p.queue.Done(key)
+	defer p.queue.Done(item)
 
-	err := p.watcher.OnWatch(p.store, key.(string))
-	p.HandleErr(err, key)
+	err := p.watcher.OnWatch(p.indexer, *(item.(*Event)))
+	p.HandleErr(err, item)
 	return true
 }
 

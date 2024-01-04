@@ -9,7 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 )
@@ -21,12 +21,12 @@ type Watcher interface {
 
 // WatchClient k8s watch client
 type WatchClient struct {
-	clientset *kubernetes.Clientset
+	rest rest.Interface
 }
 
 // NewWatchClient new watch client
-func NewWatchClient(cs *kubernetes.Clientset) *WatchClient {
-	return &WatchClient{clientset: cs}
+func NewWatchClient(rest rest.Interface) *WatchClient {
+	return &WatchClient{rest: rest}
 }
 
 // Watch watch k8s resource
@@ -64,7 +64,7 @@ func (p *WatchClient) Watch(ctx context.Context, namespace, resource string, obj
 	}
 
 	// new informer
-	lw := cache.NewFilteredListWatchFromClient(p.clientset.CoreV1().RESTClient(), resource, namespace, func(options *metav1.ListOptions) {
+	lw := cache.NewFilteredListWatchFromClient(p.rest, resource, namespace, func(options *metav1.ListOptions) {
 		options.LabelSelector = lselector.String()
 		options.FieldSelector = fselector.String()
 	})

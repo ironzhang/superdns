@@ -47,7 +47,7 @@ func TestWatchClient(t *testing.T) {
 		return
 	}
 
-	wc := NewWatchClient(clientset)
+	wc := NewWatchClient(clientset.CoreV1().RESTClient())
 	wc.Watch(context.TODO(), "dev", "pods", &v1.Pod{}, labels.Everything(), fields.Everything(), &testPodWatcher{})
 	<-context.TODO().Done()
 }

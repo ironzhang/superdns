@@ -48,7 +48,7 @@ type ClusterSpec struct {
 }
 
 type Endpoint struct {
-	Addr   string
-	State  string
-	Weight int
+	Addr   string `json:"addr"`
+	State  string `json:"state"`
+	Weight int    `json:"weight"`
 }

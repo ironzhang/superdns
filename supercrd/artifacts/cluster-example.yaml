@@ -6,7 +6,6 @@ metadata:
   labels:
     domain: example.app.com
 spec:
-  domain: "example.app.com"
   cluster: "hna-v"
   features:
     Environment: "product"

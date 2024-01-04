@@ -42,7 +42,6 @@ type ClusterList struct {
 }
 
 type ClusterSpec struct {
-	Domain    string            `json:"domain"`
 	Cluster   string            `json:"cluster"`
 	Features  map[string]string `json:"features"`
 	Endpoints []Endpoint        `json:"endpoints"`

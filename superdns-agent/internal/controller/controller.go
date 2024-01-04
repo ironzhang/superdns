@@ -6,8 +6,10 @@ import (
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/client-go/tools/cache"
 
+	"github.com/ironzhang/superdns/pkg/filewrite"
 	"github.com/ironzhang/superdns/pkg/k8sclient"
 	superdnsv1 "github.com/ironzhang/superdns/supercrd/apis/superdns.io/v1"
+	"github.com/ironzhang/superdns/superdns-agent/internal/paths"
 )
 
 type Controller struct {
@@ -16,10 +18,14 @@ type Controller struct {
 	cw        clusterWatcher
 }
 
-func New(ns string, wc *k8sclient.WatchClient) *Controller {
+func New(ns string, wc *k8sclient.WatchClient, pm *paths.PathManager, fw *filewrite.FileWriter) *Controller {
 	return &Controller{
 		namespace: ns,
 		wc:        wc,
+		cw: clusterWatcher{
+			pathmgr: pm,
+			writer:  fw,
+		},
 	}
 }
 

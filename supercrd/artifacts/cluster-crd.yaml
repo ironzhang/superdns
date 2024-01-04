@@ -24,6 +24,9 @@ spec:
                   type: string
                 cluster:
                   type: string
+                features:
+                  type: object
+                  additionalProperties: true
                 endpoints:
                   type: array
                   items:

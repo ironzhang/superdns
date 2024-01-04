@@ -8,6 +8,10 @@ metadata:
 spec:
   domain: "example.app.com"
   cluster: "hna-v"
+  features:
+    Environment: "product"
+    Region: "hn"
+    Lidc: "hna"
   endpoints:
    - addr: "127.0.0.1:8000"
      state: "enabled"

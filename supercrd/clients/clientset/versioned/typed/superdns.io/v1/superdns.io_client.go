@@ -27,6 +27,7 @@ import (
 type SuperdnsV1Interface interface {
 	RESTClient() rest.Interface
 	ClustersGetter
+	RoutesGetter
 }
 
 // SuperdnsV1Client is used to interact with features provided by the superdns.io group.
@@ -36,6 +37,10 @@ type SuperdnsV1Client struct {
 
 func (c *SuperdnsV1Client) Clusters(namespace string) ClusterInterface {
 	return newClusters(c, namespace)
+}
+
+func (c *SuperdnsV1Client) Routes(namespace string) RouteInterface {
+	return newRoutes(c, namespace)
 }
 
 // NewForConfig creates a new SuperdnsV1Client for the given config.

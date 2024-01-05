@@ -52,3 +52,37 @@ type Endpoint struct {
 	State  string `json:"state"`
 	Weight int    `json:"weight"`
 }
+
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// Route is a top-level type which represents route strategy.
+type Route struct {
+	metav1.TypeMeta `json:",inline"`
+	// +optional
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	// +optional
+	Spec RouteSpec `json:"spec,omitempty"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// RouteList ia a top-level list type which represents route strategy list.
+type RouteList struct {
+	metav1.TypeMeta `json:",inline"`
+	// +optional
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	Items []Route `json:"items"`
+}
+
+type RouteSpec struct {
+	EnableScript        bool          `json:"enableScript"`
+	ScriptContent       string        `json:"scriptContent"`
+	DefaultDestinations []Destination `json:"defaultDestinations"`
+}
+
+type Destination struct {
+	Cluster string  `json:"cluster"`
+	Percent float64 `json:"percent"`
+}

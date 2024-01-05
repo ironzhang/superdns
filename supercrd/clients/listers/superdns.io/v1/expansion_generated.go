@@ -25,3 +25,11 @@ type ClusterListerExpansion interface{}
 // ClusterNamespaceListerExpansion allows custom methods to be added to
 // ClusterNamespaceLister.
 type ClusterNamespaceListerExpansion interface{}
+
+// RouteListerExpansion allows custom methods to be added to
+// RouteLister.
+type RouteListerExpansion interface{}
+
+// RouteNamespaceListerExpansion allows custom methods to be added to
+// RouteNamespaceLister.
+type RouteNamespaceListerExpansion interface{}

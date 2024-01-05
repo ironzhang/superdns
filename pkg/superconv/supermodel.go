@@ -27,3 +27,23 @@ func ToSupermodelCluster(c superdnsv1.Cluster) supermodel.Cluster {
 		Endpoints: endpoints,
 	}
 }
+
+// ToSupermodelDestination convert superdnsv1.Destination to supermodel.Destination
+func ToSupermodelDestination(d superdnsv1.Destination) supermodel.Destination {
+	return supermodel.Destination{
+		Cluster: d.Cluster,
+		Percent: d.Percent,
+	}
+}
+
+// ToSupermodelRoute convert superdnsv1.Route to supermodel.RouteStrategy
+func ToSupermodelRoute(r superdnsv1.Route) supermodel.RouteStrategy {
+	dests := make([]supermodel.Destination, 0, len(r.Spec.DefaultDestinations))
+	for _, d := range r.Spec.DefaultDestinations {
+		dests = append(dests, ToSupermodelDestination(d))
+	}
+	return supermodel.RouteStrategy{
+		EnableScriptRoute:   r.Spec.EnableScript,
+		DefaultDestinations: dests,
+	}
+}

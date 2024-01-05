@@ -55,6 +55,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=superdns.io, Version=v1
 	case v1.SchemeGroupVersion.WithResource("clusters"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Superdns().V1().Clusters().Informer()}, nil
+	case v1.SchemeGroupVersion.WithResource("routes"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Superdns().V1().Routes().Informer()}, nil
 
 	}
 

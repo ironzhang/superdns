@@ -18,7 +18,7 @@ import (
 
 type clusterWatcher struct {
 	pathmgr *paths.PathManager
-	writer  *filewrite.FileWriter
+	fwriter *filewrite.FileWriter
 }
 
 func (p *clusterWatcher) OnWatch(indexer cache.Indexer, event k8sclient.Event) error {
@@ -47,8 +47,8 @@ func (p *clusterWatcher) writeModel(m supermodel.ServiceModel) error {
 		return err
 	}
 
-	path := p.pathmgr.ServiceFilePath(m.Domain)
-	if err = p.writer.WriteFile(path, data); err != nil {
+	path := p.pathmgr.ServiceModelPath(m.Domain)
+	if err = p.fwriter.WriteFile(path, data); err != nil {
 		return err
 	}
 	return nil

@@ -32,6 +32,10 @@ func (c *FakeSuperdnsV1) Clusters(namespace string) v1.ClusterInterface {
 	return &FakeClusters{c, namespace}
 }
 
+func (c *FakeSuperdnsV1) Routes(namespace string) v1.RouteInterface {
+	return &FakeRoutes{c, namespace}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeSuperdnsV1) RESTClient() rest.Interface {

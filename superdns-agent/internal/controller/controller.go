@@ -12,19 +12,29 @@ import (
 	"github.com/ironzhang/superdns/superdns-agent/internal/paths"
 )
 
-type Controller struct {
-	namespace string
-	wc        *k8sclient.WatchClient
-	cw        clusterWatcher
+type Options struct {
+	Namespace string
+	LIDC      string
 }
 
-func New(ns string, wc *k8sclient.WatchClient, pm *paths.PathManager, fw *filewrite.FileWriter) *Controller {
+type Controller struct {
+	opts Options
+	wc   *k8sclient.WatchClient
+	cw   clusterWatcher
+	rw   routeWatcher
+}
+
+func New(opts Options, wc *k8sclient.WatchClient, pm *paths.PathManager, fw *filewrite.FileWriter) *Controller {
 	return &Controller{
-		namespace: ns,
-		wc:        wc,
+		opts: opts,
+		wc:   wc,
 		cw: clusterWatcher{
 			pathmgr: pm,
-			writer:  fw,
+			fwriter: fw,
+		},
+		rw: routeWatcher{
+			pathmgr: pm,
+			fwriter: fw,
 		},
 	}
 }
@@ -35,7 +45,38 @@ func (p *Controller) WatchClusters(ctx context.Context, domain string) error {
 		return err
 	}
 
-	p.wc.Watch(ctx, p.namespace, "clusters", &superdnsv1.Cluster{}, ls, fields.Everything(), cache.Indexers{}, &p.cw)
+	p.wc.Watch(ctx, p.opts.Namespace, "clusters", &superdnsv1.Cluster{}, ls, fields.Everything(), cache.Indexers{}, &p.cw)
 
+	return nil
+}
+
+func (p *Controller) WatchRoutes(ctx context.Context, domain string) error {
+	ls, err := newDomainAndLidcSelector(domain, p.opts.LIDC)
+	if err != nil {
+		return err
+	}
+
+	p.wc.Watch(ctx, p.opts.Namespace, "routes", &superdnsv1.Route{}, ls, fields.Everything(), cache.Indexers{}, &p.rw)
+
+	return nil
+}
+
+func (p *Controller) WatchDomain(ctx context.Context, domain string) (err error) {
+	if err = p.WatchClusters(ctx, domain); err != nil {
+		return err
+	}
+	if err = p.WatchRoutes(ctx, domain); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Controller) WatchDomains(ctx context.Context, domains []string) (err error) {
+	for _, domain := range domains {
+		err = p.WatchDomain(ctx, domain)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

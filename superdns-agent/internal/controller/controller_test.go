@@ -13,7 +13,7 @@ import (
 	"github.com/ironzhang/superdns/superdns-agent/internal/paths"
 )
 
-func TestControllerWatchClusters(t *testing.T) {
+func TestControllerWatchDomains(t *testing.T) {
 	// build config
 	cfg, err := clientcmd.BuildConfigFromFlags("", clientcmd.RecommendedHomeFile)
 	if err != nil {
@@ -38,16 +38,16 @@ func TestControllerWatchClusters(t *testing.T) {
 	fw := filewrite.NewFileWriter(pm.TemporaryPath())
 
 	// new controller
-	controller := New("superdns", wc, pm, fw)
-
-	// watch clusters
-	err = controller.WatchClusters(context.TODO(), "example.app.com")
-	if err != nil {
-		t.Fatalf("watch clusters: %v", err)
+	opts := Options{
+		Namespace: "superdns",
+		LIDC:      "hna",
 	}
-	err = controller.WatchClusters(context.TODO(), "example1.app.com")
+	controller := New(opts, wc, pm, fw)
+
+	// watch domains
+	err = controller.WatchDomains(context.TODO(), []string{"example.app.com", "example1.app.com"})
 	if err != nil {
-		t.Fatalf("watch clusters: %v", err)
+		t.Fatalf("watch domains: %v", err)
 	}
 
 	<-context.TODO().Done()

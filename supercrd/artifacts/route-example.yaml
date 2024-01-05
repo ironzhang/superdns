@@ -1,0 +1,36 @@
+apiVersion: "superdns.io/v1"
+kind: Route
+metadata:
+  name: hna.example.app.com
+  namespace: superdns
+  labels:
+    domain: example.app.com
+    lidc: hna
+spec:
+  enableScript: false
+  scriptContent: |
+    -- www.superdns.com
+    if MatchFuncs == nil then
+    	MatchFuncs = {}
+    end
+    
+    MatchFuncs["www.superdns.com"] = function(tags, clusters)
+    	-- 仿真环境路由匹配规则
+    	if tags["Environment"] == "sim" then
+    		target = tags["X-Lane-Cluster"] -- 泳道集群
+    		cluster = clusters[target]
+    		if cluster ~= nil then
+    			return { {cluster.Name, 1} }
+    		end
+    
+    		cluster = clusters["hna-sim000-v"] -- 基准集群
+    		if cluster ~= nil then
+    			return { {cluster.Name, 1} }
+    		end
+    	end
+    
+    	return {}
+    end
+  defaultDestinations:
+  - cluster: "hna-v"
+    percent: 1

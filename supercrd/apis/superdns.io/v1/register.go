@@ -49,6 +49,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&Cluster{},
 		&ClusterList{},
+		&Route{},
+		&RouteList{},
 	)
 
 	scheme.AddKnownTypes(SchemeGroupVersion,

@@ -31,7 +31,7 @@ func (p *routeWatcher) OnWatch(indexer cache.Indexer, event k8sclient.Event) err
 
 	model := supermodel.RouteModel{
 		Domain:   r.ObjectMeta.Name,
-		Strategy: superconv.ToSupermodelRoute(*r),
+		Strategy: superconv.ToSupermodelRouteStrategy(*r),
 	}
 	err := p.writeModel(model)
 	if err != nil {

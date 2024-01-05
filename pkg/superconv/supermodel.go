@@ -36,14 +36,14 @@ func ToSupermodelDestination(d superdnsv1.Destination) supermodel.Destination {
 	}
 }
 
-// ToSupermodelRoute convert superdnsv1.Route to supermodel.RouteStrategy
-func ToSupermodelRoute(r superdnsv1.Route) supermodel.RouteStrategy {
+// ToSupermodelRouteStrategy convert superdnsv1.Route to supermodel.RouteStrategy
+func ToSupermodelRouteStrategy(r superdnsv1.Route) supermodel.RouteStrategy {
 	dests := make([]supermodel.Destination, 0, len(r.Spec.DefaultDestinations))
 	for _, d := range r.Spec.DefaultDestinations {
 		dests = append(dests, ToSupermodelDestination(d))
 	}
 	return supermodel.RouteStrategy{
-		EnableScriptRoute:   r.Spec.EnableScript,
+		EnableScript:        r.Spec.EnableScript,
 		DefaultDestinations: dests,
 	}
 }

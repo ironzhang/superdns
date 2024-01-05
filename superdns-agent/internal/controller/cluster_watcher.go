@@ -22,6 +22,8 @@ type clusterWatcher struct {
 }
 
 func (p *clusterWatcher) OnWatch(indexer cache.Indexer, event k8sclient.Event) error {
+	tlog.Debugw("on watch", "event", event)
+
 	c, ok := event.Object.(*superdnsv1.Cluster)
 	if !ok {
 		tlog.Errorw("object is not a cluster", "object", event.Object)

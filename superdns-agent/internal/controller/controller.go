@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
 
 	"github.com/ironzhang/superdns/pkg/filewrite"
@@ -40,7 +41,7 @@ func New(opts Options, wc *k8sclient.WatchClient, pm *paths.PathManager, fw *fil
 }
 
 func (p *Controller) WatchClusters(ctx context.Context, domain string) error {
-	ls, err := newDomainSelector(domain)
+	ls, err := newDomainLabelSelector(domain)
 	if err != nil {
 		return err
 	}
@@ -51,12 +52,12 @@ func (p *Controller) WatchClusters(ctx context.Context, domain string) error {
 }
 
 func (p *Controller) WatchRoutes(ctx context.Context, domain string) error {
-	ls, err := newDomainAndLidcSelector(domain, p.opts.LIDC)
+	fs, err := newDomainFieldSelector(domain)
 	if err != nil {
 		return err
 	}
 
-	p.wc.Watch(ctx, p.opts.Namespace, "routes", &superdnsv1.Route{}, ls, fields.Everything(), cache.Indexers{}, &p.rw)
+	p.wc.Watch(ctx, p.opts.Namespace, "routes", &superdnsv1.Route{}, labels.Everything(), fs, cache.Indexers{}, &p.rw)
 
 	return nil
 }

@@ -1,11 +1,8 @@
 apiVersion: "superdns.io/v1"
 kind: Route
 metadata:
-  name: hna.example.app.com
+  name: example.app.com
   namespace: superdns
-  labels:
-    domain: example.app.com
-    lidc: hna
 spec:
   enableScript: false
   scriptContent: |
@@ -14,7 +11,7 @@ spec:
     	MatchFuncs = {}
     end
     
-    MatchFuncs["www.superdns.com"] = function(tags, clusters)
+    MatchFuncs["example.app.com"] = function(tags, clusters)
     	-- 仿真环境路由匹配规则
     	if tags["Environment"] == "sim" then
     		target = tags["X-Lane-Cluster"] -- 泳道集群
@@ -29,7 +26,7 @@ spec:
     		end
     	end
     
-    	return {}
+    	return {"hna-v", 1}
     end
   defaultDestinations:
   - cluster: "hna-v"

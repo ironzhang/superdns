@@ -21,6 +21,8 @@ type routeWatcher struct {
 }
 
 func (p *routeWatcher) OnWatch(indexer cache.Indexer, event k8sclient.Event) error {
+	tlog.Debugw("on watch", "event", event)
+
 	r, ok := event.Object.(*superdnsv1.Route)
 	if !ok {
 		tlog.Errorw("object is not a route", "object", event.Object)
@@ -28,7 +30,7 @@ func (p *routeWatcher) OnWatch(indexer cache.Indexer, event k8sclient.Event) err
 	}
 
 	model := supermodel.RouteModel{
-		Domain:   r.ObjectMeta.Labels["domain"],
+		Domain:   r.ObjectMeta.Name,
 		Strategy: superconv.ToSupermodelRoute(*r),
 	}
 	err := p.writeModel(model)

@@ -15,7 +15,6 @@ import (
 
 type Options struct {
 	Namespace string
-	LIDC      string
 }
 
 type Controller struct {

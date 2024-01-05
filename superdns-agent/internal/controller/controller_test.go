@@ -40,7 +40,6 @@ func TestControllerWatchDomains(t *testing.T) {
 	// new controller
 	opts := Options{
 		Namespace: "superdns",
-		LIDC:      "hna",
 	}
 	controller := New(opts, wc, pm, fw)
 

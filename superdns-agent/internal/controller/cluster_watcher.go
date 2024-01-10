@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"sort"
 
 	"github.com/ironzhang/tlog"
 
@@ -56,15 +57,20 @@ func (p *clusterWatcher) writeModel(m supermodel.ServiceModel) error {
 	return nil
 }
 
-func objectsToClusters(objects []interface{}) map[string]supermodel.Cluster {
-	clusters := make(map[string]supermodel.Cluster, len(objects))
+func objectsToClusters(objects []interface{}) []supermodel.Cluster {
+	clusters := make([]supermodel.Cluster, 0, len(objects))
 	for _, obj := range objects {
 		c, ok := obj.(*superdnsv1.Cluster)
 		if !ok {
 			tlog.Errorw("object is not a cluster", "obj", obj)
 			continue
 		}
-		clusters[c.Spec.Cluster] = superconv.ToSupermodelCluster(*c)
+		clusters = append(clusters, superconv.ToSupermodelCluster(*c))
 	}
+
+	sort.Slice(clusters, func(i, j int) bool {
+		return clusters[i].Name < clusters[j].Name
+	})
+
 	return clusters
 }

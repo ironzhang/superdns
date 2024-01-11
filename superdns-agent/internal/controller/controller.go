@@ -39,7 +39,7 @@ func New(opts Options, wc *k8sclient.WatchClient, pm *paths.PathManager, fw *fil
 	}
 }
 
-func (p *Controller) WatchClusters(ctx context.Context, domain string) error {
+func (p *Controller) watchClusters(ctx context.Context, domain string) error {
 	ls, err := newDomainLabelSelector(domain)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (p *Controller) WatchClusters(ctx context.Context, domain string) error {
 	return nil
 }
 
-func (p *Controller) WatchRoutes(ctx context.Context, domain string) error {
+func (p *Controller) watchRoutes(ctx context.Context, domain string) error {
 	fs, err := newDomainFieldSelector(domain)
 	if err != nil {
 		return err
@@ -61,11 +61,11 @@ func (p *Controller) WatchRoutes(ctx context.Context, domain string) error {
 	return nil
 }
 
-func (p *Controller) WatchDomain(ctx context.Context, domain string) (err error) {
-	if err = p.WatchClusters(ctx, domain); err != nil {
+func (p *Controller) watchDomain(ctx context.Context, domain string) (err error) {
+	if err = p.watchClusters(ctx, domain); err != nil {
 		return err
 	}
-	if err = p.WatchRoutes(ctx, domain); err != nil {
+	if err = p.watchRoutes(ctx, domain); err != nil {
 		return err
 	}
 	return nil
@@ -73,7 +73,7 @@ func (p *Controller) WatchDomain(ctx context.Context, domain string) (err error)
 
 func (p *Controller) WatchDomains(ctx context.Context, domains []string) (err error) {
 	for _, domain := range domains {
-		err = p.WatchDomain(ctx, domain)
+		err = p.watchDomain(ctx, domain)
 		if err != nil {
 			return err
 		}

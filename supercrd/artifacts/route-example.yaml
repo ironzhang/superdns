@@ -4,7 +4,7 @@ metadata:
   name: example.app.com
   namespace: superdns
 spec:
-  enableScript: false
+  enableScript: true
   scriptContent: |
     -- www.superdns.com
     if MatchFuncs == nil then
@@ -26,7 +26,7 @@ spec:
     		end
     	end
     
-    	return {"hna-v", 1}
+    	return { {"hna", 1} }
     end
   defaultDestinations:
   - cluster: "hna-v"

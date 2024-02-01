@@ -13,9 +13,12 @@ import (
 	"github.com/ironzhang/superdns/pkg/filewrite"
 	"github.com/ironzhang/superdns/pkg/k8sclient"
 	superdnsclient "github.com/ironzhang/superdns/supercrd/clients/clientset/versioned"
+	"github.com/ironzhang/superdns/superdns-agent/internal/agent"
 	"github.com/ironzhang/superdns/superdns-agent/internal/controller"
 	"github.com/ironzhang/superdns/superdns-agent/internal/handlers/agentapi"
 	"github.com/ironzhang/superdns/superdns-agent/internal/paths"
+	"github.com/ironzhang/superdns/superdns-agent/internal/ready"
+	"github.com/ironzhang/superdns/superdns-agent/internal/subscribe"
 )
 
 type Application struct {
@@ -56,6 +59,9 @@ func (p *Application) Init() error {
 	control := controller.New(controller.Options{
 		Namespace: Conf.Namespace,
 	}, watchclient, pathmgr, fwriter)
+	inspection := ready.NewInspection(pathmgr)
+	subscriber := subscribe.NewSubscriber(control, inspection)
+	agent := agent.New(subscriber)
 
 	p.echosvr = echo.New()
 	p.echosvr.Listener = ln
@@ -66,7 +72,7 @@ func (p *Application) Init() error {
 	p.echosvr.Use(echoutil.TraceMiddleware())
 	p.echosvr.Use(echoutil.AccessLogMiddleware())
 
-	agentapi.Register(p.echosvr, agentapi.NewHandler(control))
+	agentapi.Register(p.echosvr, agentapi.NewHandler(agent))
 
 	return nil
 }

@@ -187,6 +187,8 @@ github.com/ironzhang/superlib v0.0.0-20240105104901-e82973597e32 h1:PIcEu5ziBeIi
 github.com/ironzhang/superlib v0.0.0-20240105104901-e82973597e32/go.mod h1:LTzipoYEvhAo9Wz2oMLqDhyNPwS/jaZ3miscpcuNfzg=
 github.com/ironzhang/superlib v0.0.0-20240110105052-9aaa6c613462 h1:CJzyrzOuDNjdruV25FYk0iU7jsVf9Vh10iyUjLHimbM=
 github.com/ironzhang/superlib v0.0.0-20240110105052-9aaa6c613462/go.mod h1:LTzipoYEvhAo9Wz2oMLqDhyNPwS/jaZ3miscpcuNfzg=
+github.com/ironzhang/superlib v0.0.0-20240201034449-12e1ac9535be h1:+LyVjWmpXS4beh6Kq/BPNQzaT5oO7E56zISt9Odhxm4=
+github.com/ironzhang/superlib v0.0.0-20240201034449-12e1ac9535be/go.mod h1:LTzipoYEvhAo9Wz2oMLqDhyNPwS/jaZ3miscpcuNfzg=
 github.com/ironzhang/tapp v0.0.0-20240111031358-39164a99f46b h1:UWryaB5Gq8iWBYJBO8f7lsynJ8yg0qQTbpbQC0chqng=
 github.com/ironzhang/tapp v0.0.0-20240111031358-39164a99f46b/go.mod h1:awq3CZvM7KU3HPdkyrzy6C2xU9kSCutGhyIsC1Rz9MM=
 github.com/ironzhang/tlog v0.0.0-20230221102626-339a8b110d69 h1:1bWtGDWYIBcDuA5eCTTc2wzNZXJ3go8OiA4W72Ob7M0=

@@ -57,7 +57,10 @@ func (p *worker) RunWorker() {
 }
 
 func (p *worker) Run(ctx context.Context) {
-	defer p.queue.ShutDown()
+	go func() {
+		<-ctx.Done()
+		p.queue.ShutDown()
+	}()
 
 	go p.controller.Run(ctx.Done())
 
@@ -67,6 +70,4 @@ func (p *worker) Run(ctx context.Context) {
 	}
 
 	go wait.Until(p.RunWorker, 500*time.Millisecond, ctx.Done())
-
-	<-ctx.Done()
 }

@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/ironzhang/superlib/logutil"
+	"github.com/ironzhang/superlib/ctxutil"
 	"github.com/ironzhang/tapp"
 	"github.com/ironzhang/tlog/zaplog"
 
@@ -27,7 +27,7 @@ func main() {
 		Application:       a,
 		Config:            app.Conf,
 		Runners:           []tapp.RunFunc{a.RunHTTPServer},
-		LoggerContextHook: zaplog.ContextHookFunc(logutil.ContextHook),
+		LoggerContextHook: zaplog.ContextHookFunc(ctxutil.ContextHook),
 	}
 	f.Main(os.Args)
 }

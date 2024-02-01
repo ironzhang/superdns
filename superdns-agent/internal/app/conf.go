@@ -14,8 +14,8 @@ type Config struct {
 
 var Conf = &Config{
 	Namespace:    "superdns",
-	ResourcePath: parameter.Param.ResourcePath,
+	ResourcePath: parameter.Param.Watch.ResourcePath,
 	Listen: ListenConf{
-		Addr: parameter.Param.AgentServer,
+		Addr: parameter.Param.Agent.Server,
 	},
 }

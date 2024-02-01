@@ -43,13 +43,15 @@ func TestControllerWatchDomains(t *testing.T) {
 	}
 	controller := New(opts, wc, pm, fw)
 
-	// watch domains
-	err = controller.WatchDomains(context.TODO(), []string{"example.app.com", "example1.app.com"})
+	// watch domain
+	err = controller.WatchDomain(context.TODO(), "example.app.com")
 	if err != nil {
 		t.Fatalf("watch domains: %v", err)
 	}
 
-	<-context.TODO().Done()
+	// refresh domain
+	controller.RefreshClusters(context.TODO(), "example.app.com")
+	controller.RefreshRoutes(context.TODO(), "example.app.com")
 }
 
 func TestMain(m *testing.M) {

@@ -46,7 +46,7 @@ func NewWatchClient(rest rest.Interface) *WatchClient {
 
 // Watch watch k8s resource
 func (p *WatchClient) Watch(ctx context.Context, namespace, resource string, object runtime.Object,
-	lselector labels.Selector, fselector fields.Selector, indexers cache.Indexers, watcher Watcher) {
+	lselector labels.Selector, fselector fields.Selector, indexers cache.Indexers, watcher Watcher) cache.Indexer {
 	// new workqueue
 	queue := workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter())
 
@@ -104,5 +104,7 @@ func (p *WatchClient) Watch(ctx context.Context, namespace, resource string, obj
 		indexer:    indexer,
 		controller: controller,
 	}
-	go w.Run(ctx)
+	w.Run(ctx)
+
+	return indexer
 }

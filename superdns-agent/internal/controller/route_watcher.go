@@ -28,7 +28,24 @@ func (p *routeWatcher) OnWatch(indexer cache.Indexer, event k8sclient.Event) err
 		tlog.Errorw("object is not a route", "object", event.Object)
 		return nil
 	}
+	return p.refresh(r)
+}
 
+func (p *routeWatcher) OnRefresh(indexer cache.Indexer) {
+	for _, obj := range indexer.List() {
+		r, ok := obj.(*superdnsv1.Route)
+		if !ok {
+			tlog.Errorw("object is not a route", "object", obj)
+			continue
+		}
+
+		tlog.Debugw("on refresh", "domain", r.ObjectMeta.Name)
+		p.refresh(r)
+		return
+	}
+}
+
+func (p *routeWatcher) refresh(r *superdnsv1.Route) error {
 	model := supermodel.RouteModel{
 		Domain:   r.ObjectMeta.Name,
 		Strategy: superconv.ToSupermodelRouteStrategy(*r),
@@ -43,7 +60,6 @@ func (p *routeWatcher) OnWatch(indexer cache.Indexer, event k8sclient.Event) err
 		tlog.Errorw("write route script", "domain", model.Domain, "error", err)
 		return err
 	}
-
 	return nil
 }
 

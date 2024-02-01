@@ -30,7 +30,24 @@ func (p *clusterWatcher) OnWatch(indexer cache.Indexer, event k8sclient.Event) e
 		tlog.Errorw("object is not a cluster", "object", event.Object)
 		return nil
 	}
+	return p.refresh(indexer, c)
+}
 
+func (p *clusterWatcher) OnRefresh(indexer cache.Indexer) {
+	for _, obj := range indexer.List() {
+		c, ok := obj.(*superdnsv1.Cluster)
+		if !ok {
+			tlog.Errorw("object is not a cluster", "object", obj)
+			continue
+		}
+
+		tlog.Debugw("on refresh", "domain", c.ObjectMeta.Labels["domain"])
+		p.refresh(indexer, c)
+		return
+	}
+}
+
+func (p *clusterWatcher) refresh(indexer cache.Indexer, c *superdnsv1.Cluster) error {
 	model := supermodel.ServiceModel{
 		Domain:   c.ObjectMeta.Labels["domain"],
 		Clusters: objectsToClusters(indexer.List()),
@@ -40,7 +57,6 @@ func (p *clusterWatcher) OnWatch(indexer cache.Indexer, event k8sclient.Event) e
 		tlog.Errorw("write service model", "model", model, "error", err)
 		return err
 	}
-
 	return nil
 }
 
